@@ -42,10 +42,8 @@ const NAVIGATION = [
         title: "Static Site",
         icon: <DescriptionIcon />,
       },
-    
     ],
   },
-
 ];
 
 const demoTheme = extendTheme({
@@ -99,9 +97,7 @@ export default function DashboardLayoutBasic(props) {
       window={demoWindow}
     >
       <DashboardLayout>
-        <PageContainer>
-
-        </PageContainer>
+        <PageContainer></PageContainer>
       </DashboardLayout>
     </AppProvider>
   );
