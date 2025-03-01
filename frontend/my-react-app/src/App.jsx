@@ -1,15 +1,9 @@
-import { useState } from 'react'
-import DashboardLayoutBasic from './Components/DashboardLayoutBasic'
-import Login from './Components/Login'
+import { useState } from "react";
 
+import Main from "./Components/Main";
 
 function App() {
-  
-
-  return (
-  //  <DashboardLayoutBasic/>
-    <Login/>
-  )
+  return <Main />;
 }
 
-export default App
+export default App;
