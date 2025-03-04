@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { SignInButton, SignUpButton, SignOutButton  } from "@clerk/clerk-react";
+import { SignIn } from "@clerk/clerk-react";
 
 const StartPage = () => {
   const spotlightRef = useRef(null);
@@ -46,12 +46,11 @@ const StartPage = () => {
               blend of style and functionality.
             </p>
             {/* Button */}
-            <SignInButton
+            <SignIn
+              afterSignInUrl="/dashboard"
               className="bg-gradient-to-r from-gray-700 to-gray-900 text-gray-100 font-semibold py-3 px-8 rounded-full hover:from-gray-600 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-gray-700/50"
-              onClick={handleSignIn}
-            >
-              Explore More
-            </SignInButton>
+            />
+            Explore More
           </div>
         </div>
       </div>

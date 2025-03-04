@@ -1,8 +1,22 @@
-import React from 'react'
-import StartPage from './StartPage'
-import Feedback from './Feedback'
+import StartPage from "./StartPage";
+import Feedback from "./Feedback";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { Suspense, useEffect } from "react";
+import DashBoard from "./DashBoard";
+import Setting from "./Setting";
 export default function Main() {
   return (
-   <StartPage/>
-  )
+    <>
+      <Router>
+        <Suspense fallback={<h1>Loading..</h1>}>
+          <Routes>
+            <Route path="/" element={<StartPage />} />
+            <Route path="/Dashboard" element={<DashBoard />} />
+            <Route path="/setting" element={<h1>setting</h1>} />
+            <Route path="*" element={<h1>not found</h1>} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </>
+  );
 }
