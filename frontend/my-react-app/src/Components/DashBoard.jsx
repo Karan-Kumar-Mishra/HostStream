@@ -1,21 +1,28 @@
-import React from "react";
+import * as React from "react";
 import PropTypes from "prop-types";
-import { extendTheme, styled } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { createTheme } from "@mui/material/styles";
+import CloudCircleIcon from "@mui/icons-material/CloudCircle";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LayersIcon from "@mui/icons-material/Layers";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SearchIcon from "@mui/icons-material/Search";
 import { AppProvider } from "@toolpad/core/AppProvider";
-import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { PageContainer } from "@toolpad/core/PageContainer";
-import SettingsIcon from "@mui/icons-material/Settings";
-import Grid from "@mui/material/Grid2";
+import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
+import { useDemoRouter } from "@toolpad/core/internal";
+import { UserButton } from "@clerk/clerk-react";
+import SearchBar from "./SearchBar";
 import Setting from "./Setting";
-import image from "../assets/imge.png";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { useAuth0 } from "@auth0/auth0-react"; // Import useAuth0
-import Box from "@mui/material/Box"; // Import Box for layout
+import { useNavigate } from "react-router-dom";
+import SettingsIcon from "@mui/icons-material/Settings";
+import CategoryIcon from "@mui/icons-material/Category";
+import WebAssetIcon from "@mui/icons-material/WebAsset";
+import SiteForm from "./SiteForm";
 
 const NAVIGATION = [
   {
@@ -33,34 +40,24 @@ const NAVIGATION = [
     icon: <SettingsIcon />,
   },
   {
-    segment: "orders",
-    title: "Orders",
-    icon: <ShoppingCartIcon />,
-  },
-  {
-    kind: "divider",
-  },
-  {
-    kind: "header",
-    title: "Analytics",
-  },
-  {
-    segment: "reports",
+    segment: "services",
     title: "Services",
-    icon: <BarChartIcon />,
+    icon: <CategoryIcon />,
     children: [
       {
-        segment: "sales",
-        title: "Static Site",
-        icon: <DescriptionIcon />,
+        segment: "static_site",
+        title: "Static site",
+        icon: <WebAssetIcon />,
       },
     ],
   },
 ];
 
-const demoTheme = extendTheme({
+const demoTheme = createTheme({
+  cssVariables: {
+    colorSchemeSelector: "data-toolpad-color-scheme",
+  },
   colorSchemes: { light: true, dark: true },
-  colorSchemeSelector: "class",
   breakpoints: {
     values: {
       xs: 0,
@@ -72,30 +69,8 @@ const demoTheme = extendTheme({
   },
 });
 
-function useDemoRouter(initialPath) {
-  const [pathname, setPathname] = React.useState(initialPath);
-
-  const router = React.useMemo(() => {
-    return {
-      pathname,
-      searchParams: new URLSearchParams(),
-      navigate: (path) => setPathname(String(path)),
-    };
-  }, [pathname]);
-
-  return router;
-}
-
-const Skeleton = styled("div")(({ theme, height }) => ({
-  backgroundColor: theme.palette.action.hover,
-  borderRadius: theme.shape.borderRadius,
-  height,
-  content: '" "',
-}));
-
 function DemoPageContent({ pathname }) {
   const navigate = useNavigate();
-  const { logout } = useAuth0();
 
   return (
     <Box
@@ -107,11 +82,8 @@ function DemoPageContent({ pathname }) {
         textAlign: "center",
       }}
     >
-      {pathname === "/setting" && <Setting/>}
-      {pathname === "/dashboard" && <h1>Dashboard Page</h1>}
-      {pathname === "/orders" && <h1>Orders Page</h1>}
-      {pathname === "/reports" && <h1>Reports Page</h1>}
-      {pathname === "/sales" && <h1>Sales Page</h1>}
+      {pathname === "/setting" && <Setting />}
+      {pathname === "/services/static_site" && <SiteForm />}
     </Box>
   );
 }
@@ -120,30 +92,123 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-export default function DashBoard(props) {
+function ToolbarActionsSearch() {
+  return (
+    <Stack direction="row">
+      <Tooltip title="Search" enterDelay={1000}>
+        <div>
+          <IconButton
+            type="button"
+            aria-label="search"
+            sx={{
+              display: { xs: "inline", md: "none" },
+            }}
+          >
+            <SearchIcon />
+          </IconButton>
+        </div>
+      </Tooltip>
+      <TextField
+        label="Search"
+        variant="outlined"
+        size="small"
+        slotProps={{
+          input: {
+            endAdornment: (
+              <IconButton type="button" aria-label="search" size="small">
+                <SearchIcon />
+              </IconButton>
+            ),
+            sx: { pr: 0.5 },
+          },
+        }}
+        sx={{ display: { xs: "none", md: "inline-block" }, mr: 1 }}
+      />
+      <ThemeSwitcher />
+    </Stack>
+  );
+}
+
+function SidebarFooter({ mini }) {
+  return (
+    <Typography
+      variant="caption"
+      sx={{ m: 1, whiteSpace: "nowrap", overflow: "hidden" }}
+    >
+      {mini ? "© MUI" : `© ${new Date().getFullYear()} Made with love by MUI`}
+    </Typography>
+  );
+}
+
+SidebarFooter.propTypes = {
+  mini: PropTypes.bool.isRequired,
+};
+
+function CustomAppTitle() {
+  return (
+    <Stack direction="row" alignItems="center" spacing={2}>
+      <CloudCircleIcon fontSize="large" color="primary" />
+      <Typography variant="h6">HostStram</Typography>
+      <Chip size="small" label="BETA" color="info" />
+      <Tooltip title="Connected to production">
+        <CheckCircleIcon color="success" fontSize="small" />
+      </Tooltip>
+    </Stack>
+  );
+}
+
+function Logout() {
+  return (
+    <div className="bg-slate-900 flex justify-center items-center p-5">
+      <UserButton afterSignOutUrl="/" />
+    </div>
+  );
+}
+
+function DashboardLayoutSlots(props) {
   const { window } = props;
+
   const router = useDemoRouter("/dashboard");
-  const demoWindow = window ? window() : undefined;
+  const demoWindow = window !== undefined ? window() : undefined;
+  const authentication = React.useMemo(() => {
+    return <UserButton afterSignOutUrl="/" />;
+  }, []);
+  const [session, setSession] = React.useState({
+    user: {
+      name: "Bharat Kashyap",
+      email: "bharatkashyap@outlook.com",
+      image: "https://avatars.githubusercontent.com/u/19550456",
+    },
+  });
 
   return (
     <AppProvider
+      session={session}
       navigation={NAVIGATION}
-      branding={{
-        logo: (
-          <img className="rounded-full" src={image} alt="MUI logo" />
-        ),
-        title: "HostStream",
-        homeUrl: "/toolpad/core/introduction",
-      }}
       router={router}
       theme={demoTheme}
       window={demoWindow}
+      authentication={authentication}
+      slots={{ sidebarFooter: <Logout /> }}
     >
-      <DashboardLayout>
-        <PageContainer>
-          <DemoPageContent pathname={router.pathname} />
-        </PageContainer>
+      <DashboardLayout
+        slots={{
+          appTitle: CustomAppTitle,
+          toolbarActions: ToolbarActionsSearch,
+        }}
+      >
+        <DemoPageContent pathname={router.pathname} />
       </DashboardLayout>
     </AppProvider>
   );
 }
+
+DashboardLayoutSlots.propTypes = {
+  /**
+   * Injected by the documentation to work in an iframe.
+   * Remove this when copying and pasting into your project.
+   */
+  window: PropTypes.func,
+};
+
+export default DashboardLayoutSlots;

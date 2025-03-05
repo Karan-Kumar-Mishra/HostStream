@@ -2,57 +2,105 @@ import React, { useEffect, useRef } from "react";
 import { SignIn } from "@clerk/clerk-react";
 
 const StartPage = () => {
-  const spotlightRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      const { clientX, clientY } = e;
-      const spotlight = spotlightRef.current;
-      if (spotlight) {
-        spotlight.style.left = `${clientX}px`;
-        spotlight.style.top = `${clientY}px`;
-      }
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Create stars
+    const stars = [];
+    const numStars = 200;
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5,
+        speed: Math.random() * 0.08,
+      });
+    }
+
+    // Draw stars
+    const drawStars = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((star) => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+
+        // Move stars downward
+        star.y += star.speed;
+
+        // Reset star position if it goes off the screen
+        if (star.y > canvas.height) {
+          star.y = 0;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+
+      requestAnimationFrame(drawStars);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    drawStars();
+
+    // Handle window resize
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Spotlight */}
+    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      {/* Canvas for the night sky animation */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: "block",
+          background: "black",
+          width: "100%",
+          height: "100%",
+        }}
+      ></canvas>
+
+      {/* SignIn button */}
       <div
-        ref={spotlightRef}
-        className="absolute w-64 h-64 bg-gradient-to-r from-cyan-500 to-cyan-800 rounded-full opacity-20 blur-3xl pointer-events-none transform -translate-x-1/2 -translate-y-1/2"
-        style={{ top: "50%", left: "50%" }}
-      ></div>
-
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-        {/* Main Card */}
-        <div className="relative bg-gradient-to-br from-black via-gray-900 to-black rounded-2xl shadow-2xl overflow-hidden p-8 max-w-2xl w-full transform transition-all duration-500 hover:scale-105">
-          {/* Shining Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 opacity-20 animate-shine "></div>
-
-          {/* Content */}
-          <div className="relative z-10 text-center ">
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-100 mb-4 drop-shadow-lg">
-              HostStrem.com
-            </h1>
-            {/* Subtitle */}
-            <p className="text-gray-300 text-lg mb-6">
-              Timeless design meets modern technology. Experience the perfect
-              blend of style and functionality.
-            </p>
-            {/* Button */}
-            <SignIn
-              afterSignInUrl="/dashboard"
-              className="bg-gradient-to-r from-gray-700 to-gray-900 text-gray-100 font-semibold py-3 px-8 rounded-full hover:from-gray-600 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-gray-700/50"
-            />
-            Explore More
-          </div>
-        </div>
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 1,
+        }}
+      >
+        <SignIn
+          afterSignInUrl="/dashboard"
+          appearance={{
+            elements: {
+              // Form container
+              rootBox: "w-10", // Set a smaller width for the form container
+              card: "p-4", // Reduce padding inside the form
+              formButtonPrimary:
+                "h-10 bg-blue-500 hover:bg-blue-600 text-sm px-4", // Customize the button
+            },
+          }}
+        />
       </div>
     </div>
   );

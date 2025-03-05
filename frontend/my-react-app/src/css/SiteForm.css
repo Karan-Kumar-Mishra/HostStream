@@ -1,0 +1,12 @@
+@keyframes spotlight {
+    0% {
+      transform: rotate(0deg) translateX(-50%) translateY(-50%);
+    }
+    100% {
+      transform: rotate(360deg) translateX(-50%) translateY(-50%);
+    }
+  }
+  
+  .animate-spotlight {
+    animation: spotlight 10s linear infinite;
+  }

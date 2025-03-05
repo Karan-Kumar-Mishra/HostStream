@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { Suspense, useEffect } from "react";
 import DashBoard from "./DashBoard";
 import Setting from "./Setting";
+import SiteForm from "./SiteForm";
 export default function Main() {
   return (
     <>

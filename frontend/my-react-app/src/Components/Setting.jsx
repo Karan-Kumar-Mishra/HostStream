@@ -1,5 +1,7 @@
 import React from "react";
 import "../css/Setting.css";
+import { UserButton } from "@clerk/clerk-react";
+
 export default function Setting() {
   const settingsOptions = [
     { id: 1, label: "Profile", buttonLabel: "Edit" },
@@ -13,7 +15,6 @@ export default function Setting() {
     <div className="settings-container">
       <div className="spotlight"></div>
       <div className="settings-box">
-        <h2>Settings</h2>
         <div className="settings-list">
           {settingsOptions.map((option) => (
             <div key={option.id} className="setting-item">
@@ -27,9 +28,7 @@ export default function Setting() {
             </div>
           ))}
         </div>
-        <button className="signout-button" onClick={() => alert("Signed out!")}>
-          Sign Out
-        </button>
+      
       </div>
     </div>
   );
